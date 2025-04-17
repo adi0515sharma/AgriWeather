@@ -41,13 +41,19 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
             implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.encoding)
+
             implementation(libs.kotlinx.coroutines.core)
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
 
             implementation(libs.lifecycle.viewmodel.compose)
+
+
 
         }
         commonTest.dependencies {
