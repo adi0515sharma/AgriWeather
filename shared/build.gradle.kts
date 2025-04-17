@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
+    kotlin("plugin.serialization") version "1.9.10"
+
 }
 
 kotlin {

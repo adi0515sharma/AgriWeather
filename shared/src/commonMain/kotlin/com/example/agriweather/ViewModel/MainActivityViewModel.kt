@@ -29,7 +29,6 @@ class MainActivityViewModel : ViewModel() {
     suspend fun fetchSomething(): CurrentWeatherResponse {
         val client = createHttpClient()
         val response: CurrentWeatherResponse = client.get("https://api.open-meteo.com/v1/forecast?latitude=19.02&longitude=72.85&current_weather=true").body()
-        println("OpenMeteo = " +response.toString())
         return response
     }
 }

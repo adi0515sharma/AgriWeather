@@ -4,11 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CurrentWeather(
-    val interval: Int,
-    val is_day: Int,
+    val interval: Double,
+    val is_day: Double,
     val temperature: Double,
     val time: String,
-    val weathercode: Int,
-    val winddirection: Int,
+    val weathercode: Double,
+    val winddirection: Double,
     val windspeed: Double
 )
