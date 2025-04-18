@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import androidx.core.content.ContextCompat
 import com.example.agriweather.Models.UserLocation
 import com.google.android.gms.location.LocationServices
@@ -58,6 +59,11 @@ internal class LocationProvider : KoinComponent {
         }
     }
 
+    fun isGpsEnabled(): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
     fun getLocationName(lat: Long, long: Long): String {
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())
@@ -107,4 +113,8 @@ fun formatReadableTime(input: String): String {
 
 actual fun getLocationName(lat: Long, long: Long): String {
     return LocationProvider().getLocationName(lat, long)
+}
+
+actual fun checkIsGPSON(): Boolean {
+    return LocationProvider().isGpsEnabled()
 }

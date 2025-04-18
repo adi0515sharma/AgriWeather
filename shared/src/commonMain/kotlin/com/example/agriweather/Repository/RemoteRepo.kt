@@ -15,6 +15,7 @@ expect suspend fun getCurrentLocation(): UserLocation?
 expect suspend fun checkLocationPermission(): Boolean
 expect fun getLocalTime(time : String) : String
 expect fun getLocationName(lat : Long, long : Long) : String
+expect fun checkIsGPSON() : Boolean
 
 class RemoteRepo (val client: HttpClient, val weatherRepo: WeatherRepo) {
 
@@ -22,7 +23,7 @@ class RemoteRepo (val client: HttpClient, val weatherRepo: WeatherRepo) {
     suspend fun getCurrentWeather() : String?{
         try{
 
-            val userCurrentLocation : UserLocation = getCurrentLocation() ?: return "No Location Found";
+            val userCurrentLocation : UserLocation = getCurrentLocation() ?: return "Please check your GPS and Internet is available";
             var response: CurrentWeatherResponse = client.get("https://api.open-meteo.com/v1/forecast?latitude=${userCurrentLocation.latitude}&longitude=${userCurrentLocation.longitude}&current_weather=true").body()
             response.locationName = getLocationName(response.latitude.toLong(), response.longitude.toLong())
             response.localReadAbleTime = getLocalTime(response.current_weather.time)

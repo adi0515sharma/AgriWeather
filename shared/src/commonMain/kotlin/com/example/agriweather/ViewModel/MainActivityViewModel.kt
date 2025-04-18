@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.agriweather.Models.WeatherModels.CurrentWeatherResponse
 import com.example.agriweather.Repository.RemoteRepo
 import com.example.agriweather.Repository.WeatherRepo
+import com.example.agriweather.Repository.checkIsGPSON
 import com.example.agriweather.Repository.checkLocationPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -52,7 +53,9 @@ class MainActivityViewModel(
             return
         }
 
+
         _isLoading.value = true
+
         _errorMessage.value = null
         val errorMessage = remoteRepo.getCurrentWeather()
         _errorMessage.value = errorMessage

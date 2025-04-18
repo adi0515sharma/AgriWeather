@@ -17,3 +17,7 @@ actual fun getLocalTime(time: String): String {
 actual fun getLocationName(lat: Long, long: Long): String {
     TODO("Not yet implemented")
 }
+
+actual fun checkIsGPSON(): Boolean {
+    TODO("Not yet implemented")
+}
