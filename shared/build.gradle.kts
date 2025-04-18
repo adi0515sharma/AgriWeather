@@ -78,6 +78,7 @@ android {
 
 
 dependencies {
+    implementation(libs.play.services.location)
     add("kspAndroid", libs.room.compiler)
 }
 

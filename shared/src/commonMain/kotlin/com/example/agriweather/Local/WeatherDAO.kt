@@ -4,7 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.agriweather.Models.CurrentWeatherResponse
+import com.example.agriweather.Models.WeatherModels.CurrentWeatherResponse
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
@@ -12,7 +13,7 @@ interface WeatherDao {
     suspend fun insertWeather(weather: CurrentWeatherResponse)
 
     @Query("SELECT * FROM weather LIMIT 1")
-    suspend fun getWeather(): CurrentWeatherResponse?
+    fun getWeather(): Flow<CurrentWeatherResponse?>
 
     @Query("DELETE FROM weather")
     suspend fun clearAll()
