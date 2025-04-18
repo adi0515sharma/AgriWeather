@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2fdeee7cb2276b379c1972b167b3bebc",
+    "identityHash": "025ea201ec1d41fb94040140e0a414b5",
     "entities": [
       {
         "tableName": "weather",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `elevation` REAL NOT NULL, `generationtime_ms` REAL NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `timezone` TEXT NOT NULL, `timezone_abbreviation` TEXT NOT NULL, `utc_offset_seconds` REAL NOT NULL, `units_interval` REAL NOT NULL, `units_is_day` REAL NOT NULL, `units_temperature` REAL NOT NULL, `units_time` TEXT NOT NULL, `units_weathercode` REAL NOT NULL, `units_winddirection` REAL NOT NULL, `units_windspeed` REAL NOT NULL, `current_interval` TEXT NOT NULL, `current_is_day` TEXT NOT NULL, `current_temperature` TEXT NOT NULL, `current_time` TEXT NOT NULL, `current_weathercode` TEXT NOT NULL, `current_winddirection` TEXT NOT NULL, `current_windspeed` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `elevation` REAL NOT NULL, `generationtime_ms` REAL NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `timezone` TEXT NOT NULL, `timezone_abbreviation` TEXT NOT NULL, `utc_offset_seconds` REAL NOT NULL, `locationName` TEXT, `localReadAbleTime` TEXT, `units_interval` REAL NOT NULL, `units_is_day` REAL NOT NULL, `units_temperature` REAL NOT NULL, `units_time` TEXT NOT NULL, `units_weathercode` REAL NOT NULL, `units_winddirection` REAL NOT NULL, `units_windspeed` REAL NOT NULL, `current_interval` TEXT NOT NULL, `current_is_day` TEXT NOT NULL, `current_temperature` TEXT NOT NULL, `current_time` TEXT NOT NULL, `current_weathercode` TEXT NOT NULL, `current_winddirection` TEXT NOT NULL, `current_windspeed` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -55,6 +55,16 @@
             "columnName": "utc_offset_seconds",
             "affinity": "REAL",
             "notNull": true
+          },
+          {
+            "fieldPath": "locationName",
+            "columnName": "locationName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localReadAbleTime",
+            "columnName": "localReadAbleTime",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "current_weather.interval",
@@ -151,7 +161,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2fdeee7cb2276b379c1972b167b3bebc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '025ea201ec1d41fb94040140e0a414b5')"
     ]
   }
 }

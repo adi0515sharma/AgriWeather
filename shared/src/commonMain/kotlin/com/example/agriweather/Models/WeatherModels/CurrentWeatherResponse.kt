@@ -17,5 +17,8 @@ data class CurrentWeatherResponse(
     val longitude: Double,
     val timezone: String,
     val timezone_abbreviation: String,
-    val utc_offset_seconds: Double
+    val utc_offset_seconds: Double,
+
+    var locationName: String? = "",
+    var localReadAbleTime: String? = ""
 )

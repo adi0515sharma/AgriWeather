@@ -48,6 +48,5 @@ dependencies {
 
     implementation(libs.koin.androidx.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.datetime)
 
 }

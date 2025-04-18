@@ -53,6 +53,7 @@ class MainActivityViewModel(
         }
 
         _isLoading.value = true
+        _errorMessage.value = null
         val errorMessage = remoteRepo.getCurrentWeather()
         _errorMessage.value = errorMessage
         _isLoading.value = false

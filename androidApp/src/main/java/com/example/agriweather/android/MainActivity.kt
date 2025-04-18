@@ -4,17 +4,23 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -40,7 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,10 +66,14 @@ import com.example.agriweather.Repository.checkLocationPermission
 import com.example.agriweather.ViewModel.MainActivityViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.TimeZone
 
 class MainActivity : ComponentActivity() {
 
@@ -69,7 +83,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         requestPermissionsLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -178,8 +191,13 @@ class MainActivity : ComponentActivity() {
                             showLocationAlert = false
                         }
 
-                        weatherData?.let {
-                            WeatherCard(weatherData!!)
+
+                            WeatherCard(weatherData){
+
+                                localCoroutine.launch {
+                                    viewModel.fetchCurrentWeather()
+                                }
+
                         }
 
                     }
@@ -238,7 +256,8 @@ private fun openAppSettings(context: Context) {
 
 
 @Composable
-fun WeatherCard(weather: CurrentWeatherResponse) {
+fun WeatherCard(weather: CurrentWeatherResponse?, onRefresh :()->Unit) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -246,52 +265,88 @@ fun WeatherCard(weather: CurrentWeatherResponse) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = "📍 ${weather.latitude}, ${weather.longitude}",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_refresh_24),
+                contentDescription = "refresh icon",
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp) // optional padding
+                    .size(30.dp)
+                    .clickable {
+                        onRefresh()
+                    },
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(if(isSystemInDarkTheme()) Color.White else Color.Black)
+            )
 
-        val isDay = weather.current_weather.is_day.toInt() == 1
-        Text(
-            text = if (isDay) "☀️" else "🌙",
-            fontSize = 200.sp
-        )
+            weather?.let {
 
-        Text(
-            text = "🕒 ${weather.current_weather.time}",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
-        )
+                Log.e("OpenMeteo", weather.toString())
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "📍 ${weather.locationName ?:"Unknown"}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFE3F2FD))
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                WeatherStat("🌡️", "Temp", "${weather.current_weather.temperature} ${weather.current_weather_units.temperature}")
-                WeatherStat("💨", "Wind", "${weather.current_weather.windspeed?.toInt()} ${weather.current_weather_units.windspeed}")
-                WeatherStat("🧭", "Dir", "${weather.current_weather.winddirection?.toInt()}°")
+                    Spacer(modifier = Modifier.height(25.dp))
+
+                    Text(
+                        text = "${weather.localReadAbleTime}",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+        }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+
+        weather?.let {
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+                Text(
+                    text = if (weather.current_weather.is_day.toInt() == 1) "☀️" else "🌙",
+                    fontSize = 200.sp
+                )
+            }
+
+
+
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFE3F2FD))
+                    .padding(16.dp)
             ) {
-                WeatherStat("📍", "Elev", "${weather.elevation} m")
-                WeatherStat("⏱️", "Interval", "${weather.current_weather.interval.toInt()} ${weather.current_weather_units.interval}")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    WeatherStat("🌡️", "Temp", "${weather.current_weather.temperature} ${weather.current_weather_units.temperature}")
+                    WeatherStat("💨", "Wind", "${weather.current_weather.windspeed?.toInt()} ${weather.current_weather_units.windspeed}")
+                    WeatherStat("🧭", "Dir", "${weather.current_weather.winddirection?.toInt()}°")
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    WeatherStat("📍", "Elev", "${weather.elevation} m")
+                    WeatherStat("⏱️", "Interval", "${weather.current_weather.interval.toInt()} ${weather.current_weather_units.interval}")
+                }
             }
         }
+
     }
 }
 
@@ -303,10 +358,13 @@ fun WeatherStat(icon: String, label: String, value: String) {
         modifier = Modifier.width(90.dp)
     ) {
         Text(text = icon, fontSize = 24.sp)
-        Text(text = label, fontWeight = FontWeight.SemiBold)
+        Text(text = label, fontWeight = FontWeight.SemiBold, color = Color.DarkGray)
         Text(text = value, fontSize = 14.sp, color = Color.DarkGray)
     }
 }
+
+
+
 @Composable
 fun GreetingView(text: String) {
     Text(text = text)
